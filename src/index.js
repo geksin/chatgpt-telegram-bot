@@ -38,6 +38,14 @@ import {
 
 const require = createRequire(import.meta.url);
 
+function checkAccountAccess(ctx, accounts) {
+    if (accounts.length && !accounts.includes(getUsername(ctx))) {
+        // accessDenied(ctx, i18next, chatContextStore); // закомитил для доступа всех
+        return true; // Возвращаем false, чтобы показать, что доступ не разрешен // Пока true, без ограничений
+    }
+    return true; // Возвращаем true, если доступ разрешен    
+}
+
 i18next.init({
     lng: langDefault,
     debug: false,
@@ -46,6 +54,7 @@ i18next.init({
         return acc;
     }, {})
   });
+
 
 /**
  * Стор, в кототом храним контекст чатов с ботом
@@ -277,9 +286,8 @@ const commands = {
 
 const runBot = async () => {
     bot.on('callback_query', async (ctx) => {
-        if (accounts.length && !accounts.includes(getUsername(ctx))) {
-            accessDenied(ctx, i18next, chatContextStore);
-            return;
+        if (!checkAccountAccess(ctx, accounts)) {
+            return; // Прекратить выполнение дальнейшего кода
         }
         const data = ctx.update.callback_query.data;
         const id = getReplyId(ctx);
@@ -353,9 +361,8 @@ const runBot = async () => {
         .forEach(command => {
             const { fn,  } = commands[command];
             bot.command(command, (ctx) => {
-                if (accounts.length && !accounts.includes(getUsername(ctx))) {
-                    accessDenied(ctx, i18next, chatContextStore);
-                    return;
+                if (!checkAccountAccess(ctx, accounts)) {
+                    return; // Прекратить выполнение дальнейшего кода
                 }
                 checkChatContext(getReplyId(ctx));
                 fn(ctx);
@@ -363,15 +370,15 @@ const runBot = async () => {
     });
 
     bot.on('message', async (ctx) => {
-        if (accounts.length && !accounts.includes(getUsername(ctx))) {
-            accessDenied(ctx, i18next, chatContextStore);
-            return;
+        if (!checkAccountAccess(ctx, accounts)) {
+            return; // Прекратить выполнение дальнейшего кода
         }
 
         if (ctx.message.voice) { // Voice messages handling
             const { voice, from } = ctx.message;
             const { id } = from;
             const { file_id } = voice;
+            // Определяем функцию для остановки действия набора текста
             await setUserLanguage(ctx, i18next, chatContextStore);
             let stopTyping
             ctx.replyWithHTML(`<code>${i18next.t('system.messages.processing')}</code>`)

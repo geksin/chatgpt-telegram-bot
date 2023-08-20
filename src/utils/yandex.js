@@ -74,7 +74,7 @@ export const vocalizeText = async (text, lang, character) => {
                 voice = 'ermil';
             } else {
                 emotion = 'good';
-                voice = 'alena';
+                voice = 'jane';
             }
             break;
     }
