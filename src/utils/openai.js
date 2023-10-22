@@ -9,7 +9,7 @@ const openai = new OpenAIApi(new Configuration({
  * Выполняет запрос к chat gpt
  * 
  * @param {Array<{ role: 'system' | 'assistant' | 'user'; content: string; }>} messages 
- * @param {'gpt-4' | 'gpt-3.5-turbo-16k'} model
+ * @param {'gpt-4' | 'gpt-3.5-turbo'} model
  * @returns {{ choices: { message: string }[], error?: import('axios').AxiosError }}
  */
 export const requestAssist = async (messages = [], model) => {
